@@ -2,7 +2,7 @@
     <img src="assets/pic3.png">
 </p>
 
-## DiffBIR: Towards Blind Image Restoration with Generative Diffusion Prior
+## 3D Priors-Guided Diffusion for Blind Face Restoration
 
 [Paper](xxx) | [Project Page](xxx)
 
