@@ -28,7 +28,7 @@ Should you find our method beneficial, your support in starring this repository 
 ## <a name="installation"></a>:star:Installation
 ```shell
 # clone this repo
-git clone [https://github.com/XPixelGroup/DiffBIR](https://github.com/838143396/3Diffusion).git
+git clone https://github.com/838143396/3Diffusion.git
 cd 3Diffusion
 
 # create environment
