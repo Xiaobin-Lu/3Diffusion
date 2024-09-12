@@ -76,7 +76,12 @@ We provide some examples for inference, check [inference.py](inference.py) for m
 Please cite us if our work is useful for your research.
 
 ```
-
+@article{lu20243d,
+  title={3D Priors-Guided Diffusion for Blind Face Restoration},
+  author={Lu, Xiaobin and Hu, Xiaobin and Luo, Jun and Zhu, Ben and Ruan, Yaping and Ren, Wenqi},
+  journal={arXiv preprint arXiv:2409.00991},
+  year={2024}
+}
 ```
 
 ## License
