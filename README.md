@@ -90,4 +90,4 @@ This project is based on [StableDiffusion](https://github.com/Stability-AI/Stabl
 
 ## Contact
 
-If you have any questions, please feel free to contact with me at linxinqi23@mails.ucas.ac.cn.
+If you have any questions, please feel free to contact with me at luxb@mail2.sysu.edu.cn.
