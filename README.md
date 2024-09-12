@@ -53,13 +53,9 @@ We provide some examples for inference, check [inference.py](inference.py) for m
 
 ```shell
 # for aligned face inputs
-
+python inference.py  --aligned --in_path ./input  --out_path ./output
 ```
 
-```shell
-# for unaligned face inputs
-
-```
 
 ## <a name="visual_results"></a>:eyes:Visual Results On The Synthetic And Real-world Images
 
