@@ -4,7 +4,7 @@
 
 ## 3D Priors-Guided Diffusion for Blind Face Restoration
 
-[Paper](http://arxiv.org/abs/2409.00991) | [Project Page](https://838143396.github.io/3Diffusion.github.io/)
+[Paper](http://arxiv.org/abs/2409.00991) | [Project Page](https://xiaobin-lu.github.io/3Diffusion.github.io//)
 
 
 Xiaobin Lu<sup>1,\*</sup>, Xiaobin Hu<sup>2,\*</sup>, Jun Luo<sup>3</sup>, Ben Zhu<sup>4</sup>, Yaping Ruan<sup>4</sup>, Wenqi Ren<sup>1</sup>
