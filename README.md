@@ -43,7 +43,7 @@ conda install pytorch3d -c pytorch3d
 ```
 
 ## <a name="pretrained_models"></a>:dna:Pretrained Models
-If you need the pretrained model, please download from [baidu drive](https://pan.baidu.com/s/1kNfl7gkTcRrZWaLgFIcIDw) (password:5iig) , and put it into weights folder. 
+If you need the pretrained model, please download from [baidu drive](https://pan.baidu.com/s/1kNfl7gkTcRrZWaLgFIcIDw) (password:5iig) or [Google drive](https://drive.google.com/drive/folders/10Ud7_xXkeWAvQLi5vC_lio3JXN-uGuaR?usp=sharing), and put it into weights folder. 
 
 
 ## <a name="inference"></a>:crossed_swords:Inference
