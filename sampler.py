@@ -24,8 +24,6 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 
 from basicsr.utils import img2tensor
 from basicsr.archs.rrdbnet_arch import RRDBNet
-from basicsr.utils.realesrgan_utils import RealESRGANer
-from facelib.utils.face_restoration_helper import FaceRestoreHelper
 
 class BaseSampler:
     def __init__(self, configs):
@@ -191,36 +189,11 @@ class DifIRSampler(BaseSampler):
 
         
 
-        if not self.configs.aligned:
-            assert self.num_gpus == 1, 'Only support one gpu for unalinged model'
-            # face dection model
-            self.face_helper = FaceRestoreHelper(
-                    self.configs.detection.upscale,
-                    face_size=self.configs.im_size,
-                    crop_ratio=(1, 1),
-                    det_model = self.configs.detection.det_model,
-                    save_ext='png',
-                    use_parse=True,
-                    device=torch.device(f'cuda:{self.rank}'),
-                    )
-
-            # background super-resolution
-            bg_model = RRDBNet(num_in_ch=3, num_out_ch=3, num_feat=64, num_block=23, num_grow_ch=32, scale=2)
-            self.bg_model = RealESRGANer(
-                scale=2,
-                model_path='https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.1/RealESRGAN_x2plus.pth',
-                model=bg_model,
-                tile=400,
-                tile_pad=10,
-                pre_pad=0,
-                half=True,
-                device=torch.device(f'cuda:{self.rank}'),
-                )  # need to set False in CPU mode
-
     def sample_func_ir_aligned(
             self,
             y0,
-            threeD,
+            # threeD,
+            face_restoration_inst,
             start_timesteps=None,
             post_fun=None,
             model_kwargs_ir=None,
@@ -239,8 +212,10 @@ class DifIRSampler(BaseSampler):
         '''
         if not isinstance(y0, torch.Tensor):
             y0 = img2tensor(y0, bgr2rgb=True, float32=True).unsqueeze(0) / 255.  # 1 x c x h x w, [0,1]
-        if not isinstance(threeD, torch.Tensor):
-            threeD = img2tensor(threeD, bgr2rgb=True, float32=True).unsqueeze(0) / 255.  # 1 x c x h x w, [0,1]
+        # print("before",threeD,type(threeD))
+        # if not isinstance(threeD, torch.Tensor):
+        #     threeD = img2tensor(threeD, bgr2rgb=True, float32=True).unsqueeze(0) / 255.  # 1 x c x h x w, [0,1]
+        # print("after",threeD,type(threeD),torch.mean(threeD))
 
         if start_timesteps is None:
             start_timesteps = self.diffusion.num_timesteps
@@ -256,7 +231,7 @@ class DifIRSampler(BaseSampler):
         # basical image ema0999_model_67000
         device = next(self.model.parameters()).device
         y0 = y0.to(device=device, dtype=torch.float32)
-        threeD = threeD.to(device=device, dtype=torch.float32)
+        # threeD = threeD.to(device=device, dtype=torch.float32)
 
         import time
         #load adapter and get 3d feature
@@ -269,8 +244,10 @@ class DifIRSampler(BaseSampler):
         else:
             im_hq = y0
         im_hq.clamp_(0.0, 1.0)
-        
-        
+
+        threeD = face_restoration_inst.enhance(im_hq)
+        threeD = threeD.to(device=device, dtype=torch.float32)
+        threeD.clamp_(0.0, 1.0)
         h_old, w_old = im_hq.shape[2:4]
         if not (h_old == self.configs.im_size and w_old == self.configs.im_size):
             im_hq = resize(im_hq, out_shape=(self.configs.im_size,) * 2).to(torch.float32)

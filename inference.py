@@ -20,7 +20,9 @@ from ResizeRight.resize_right import resize
 from basicsr.utils.download_util import load_file_from_url
 
 from models.adapter import Adapter
-# PYTHONPATH="./:${PYTHONPATH}" CUDA_VISIBLE_DEVICES=1  python inference.py  --aligned --in_path /mnt/sda1/luxb/luxb_move/experiment_image_result/data/lq_lowQuality  --out_path ./res
+# PYTHONPATH="./:${PYTHONPATH}" CUDA_VISIBLE_DEVICES=1  python inference_difface.py  --aligned --in_path /mnt/sda1/luxb/luxb_move/experiment_image_result/data/lq_lowQuality  --out_path ./res
+
+# PYTHONPATH="./:${PYTHONPATH}" CUDA_VISIBLE_DEVICES=0    python inference.py  --aligned --in_path /mnt/sda1/luxb/luxb_move/3Diffusion/input    --out_path ./res
 
 def main():
     parser = argparse.ArgumentParser()
@@ -35,6 +37,7 @@ def main():
         "--started_timesteps",
         type=int,
         default='100',
+        help='Started timestep for DifFace, parameter N in our paper (Default:100)',
     )
     parser.add_argument(
         "--aligned",
@@ -68,7 +71,7 @@ def main():
     )
     args = parser.parse_args()
 
-    cfg_path = 'configs/train_with_0112.yaml'
+    cfg_path = '/paddle/3Diffusion/configs/sample_config.yaml'
     configs = OmegaConf.load(cfg_path)
     configs.gpu_id = "1"
     configs.aligned = args.aligned
@@ -76,9 +79,17 @@ def main():
 
     # prepare the checkpoint
     print(configs.model.ckpt_path)
+    if not Path(configs.model.ckpt_path).exists():
+        print("do not exist")
+        load_file_from_url(
+            url="https://bj.bcebos.com/v1/dataset/PaddleMIX/xiaobin/checkpoints/checkpoint_acmm24.pth",
+            model_dir=str(Path(configs.model.ckpt_path).parent),
+            progress=True,
+            file_name=Path(configs.model.ckpt_path).name,
+        )
     if not Path(configs.model_ir.ckpt_path).exists():
         load_file_from_url(
-            url="https://github.com/zsyOAOA/DifFace/releases/download/V1.0/General_Face_ffhq512.pth",
+            url="https://bj.bcebos.com/v1/dataset/PaddleMIX/xiaobin/checkpoints/General_Face_ffhq512.pth",
             model_dir=str(Path(configs.model_ir.ckpt_path).parent),
             progress=True,
             file_name=Path(configs.model_ir.ckpt_path).name,
@@ -116,12 +127,16 @@ def main():
         im_lq = util_image.imread(im_path, chn='bgr', dtype='uint8')
 
         
-        im_3d = util_image.imread("/mnt/sda1/luxb/luxb_move/experiment_image_result/data/3d_sr_1/"+str(im_path).split('/')[-1], chn='bgr', dtype='uint8')
+        # im_3d = util_image.imread("/paddle/3Diffusion/3d/"+str(im_path).split('/')[-1], chn='bgr', dtype='uint8')
 
+        from models.d3dfr import FaceRestoration
+        face_args = {"ckpt_facedet":'checkpoints/yoloface_v5m.pt','ckpt_3dmm':'checkpoints/BFM/','ckpt_fr3d':'checkpoints/d3dfr_finetune_ours.pth',"device":"cuda","in_size":512}
+        face_restoration_inst = FaceRestoration(face_args)
         if args.aligned:
             face_restored, hr_out = sampler_dist.sample_func_ir_aligned(
                 y0=im_lq,
-                threeD=im_3d,
+                # threeD=im_3d,
+                face_restoration_inst=face_restoration_inst,
                 start_timesteps=args.started_timesteps,
                 need_restoration=True,
             )  # [0,1], 'rgb'
@@ -136,29 +151,11 @@ def main():
                 min_max=(0.0, 1.0),
             )  # uint8, BGR
             save_path = restored_face_dir / im_path.name
+            print(f'Save restored face to {save_path}')
             util_image.imwrite(face_restored, save_path, chn='bgr', dtype_in='uint8')
         else:
-            image_restored, face_restored, face_cropped = sampler_dist.sample_func_bfr_unaligned(
-                y0=im_lq,
-                start_timesteps=args.started_timesteps,
-                need_restoration=True,
-                draw_box=args.draw_box,
-            )
-
-            # save the whole image
-            save_path = restored_image_dir / im_path.name
-            util_image.imwrite(image_restored, save_path, chn='bgr', dtype_in='uint8')
-
-            # save the cropped and restored faces
-            assert len(face_cropped) == len(face_restored)
-            for jj, face_cropped_current in enumerate(face_cropped):
-                face_restored_current = face_restored[jj]
-
-                save_path = cropped_face_dir / f"{im_path.stem}_{jj}.png"
-                util_image.imwrite(face_cropped_current, save_path, chn='bgr', dtype_in='uint8')
-
-                save_path = restored_face_dir / f"{im_path.stem}_{jj}.png"
-                util_image.imwrite(face_restored_current, save_path, chn='bgr', dtype_in='uint8')
+            #抛出异常
+            raise NotImplementedError('Not implemented yet, please use aligned mode')
 
 
 if __name__ == '__main__':

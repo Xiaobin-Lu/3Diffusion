@@ -96,6 +96,8 @@ def reload_model(model, ckpt,swinIR=False):
     model.load_state_dict(ckpt)
 
 def reload_model2(model, ckpt,swinIR=False):
+    if "state_dict" in ckpt:
+        ckpt = ckpt["state_dict"]
     if list(model.state_dict().keys())[0].startswith('module.'):
         if list(ckpt.keys())[0].startswith('module.'):
             ckpt = ckpt

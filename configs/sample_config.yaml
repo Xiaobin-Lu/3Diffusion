@@ -1,11 +1,12 @@
 gpu_id: ""
-seed: 10000
+# seed: 10000
+seed: 50000
 display: True
 im_size: 512
 aligned: True
 
 diffusion:
-  target: models.script_util3.create_gaussian_diffusion
+  target: models.script_util.create_gaussian_diffusion
   params:
     steps: 1000
     learn_sigma: True
@@ -16,12 +17,10 @@ diffusion:
     rescale_timesteps: False
     rescale_learned_sigmas: True
     timestep_respacing: ""
-# /mnt/sda1/luxb/luxb_move/model/Difface_10.14/experiment_model/model/ema_ckpts
+    
 model:
-  target: models.unet_0112.UNetModel
-
-  ckpt_path: your_ckpt_path
-
+  target: models.unet.UNetModel
+  ckpt_path: checkpoints/checkpoint_acmm24.pth
   params:
     image_size: 512
     in_channels: 3
@@ -41,9 +40,7 @@ model:
 
 model_ir:
   target: models.swinir.SwinIR
-  ckpt_path: ./weights/SwinIR/General_Face_ffhq512.pth
-  # ckpt_path: /home/wz/luxb/code/Difface_10.14/swinir2/2023-12-27-10-56/ckpts/model_400000_out.pth
-#  ckpt_path: /home/sysu/luxb/code/DifFace-master/weights/SwinIR/model_160000.pth
+  ckpt_path: checkpoints/General_Face_ffhq512.pth
   params:
     img_size: 64
     patch_size: 1
